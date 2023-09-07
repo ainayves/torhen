@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 from utils import ten_maximum_seeders
+from save_drive import stream_upload
+import argparse
 
 class Scrapper:
 
@@ -12,7 +14,9 @@ class Scrapper:
         options = Options()
         options.add_argument("-headless") 
         self.driver = webdriver.Firefox(options=options)
-        self.driver.get(f"https://www.limetorrents.lol/search/all/{self.search_key}/")
+        self.driver.get(f"https://www.limetorrents.lol/search/all/{self.search_key}")
+        self.result = []
+        self.magnet_link = ""
 
 
     def __enter__(self) -> None:
@@ -26,31 +30,46 @@ class Scrapper:
         seeder_nb = [str(seed[4].replace(",","")) for seed in clean_data ]
         maximums = ten_maximum_seeders(seeder_nb)
         max_index = [seeder_nb.index(e) for e in maximums]
-
         best_torrent = ["-".join(clean_data[mi][0].split()) for mi in max_index]
         links = [link.get('href') for link in table.find_all('a')]
+
         
-        all_filtered_links= [item for item in links if not item.startswith('/')]
+        all_filtered_links= [item for item in links if item.startswith('/')]
 
         # Get best seeder torrent links
-        result = []
         for link in all_filtered_links:
-            for b in best_torrent:
+            for a , b in enumerate(best_torrent):
                 if b in link:
-                    result.append(link)
+                    self.result.append(f'{link} | Size : {clean_data[a][2]}')
 
-        for x, y in enumerate(result):
+        for x, y in enumerate(self.result):
             print(f'{x+1}- {y}')
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.driver.close()
+        # self.driver.close()
+        while True:
+            user_input = input('Choose a torrent number > ')
+            self.driver.get(f"https://www.limetorrents.lol{self.result[int(user_input) - 1]}")
+            page_source = self.driver.page_source
+            soup = BeautifulSoup(page_source, 'html.parser')
+            links = soup.find_all("a")
+            for link in links:
+                if "magnet:" in str(link):
+                    self.magnet_link = link
+                    break
+            
+            
+            # stream_upload(str(self.magnet_link['href']))
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--search', type=str, required=True)
+args = parser.parse_args()
+
+with Scrapper(search_key=args.search) as scrap:
+    pass
     
-    def best_seeded(self):
-        pass
 
 
-with Scrapper(search_key="oppenheimer") as scrap:
-    print("traitement ...")
 
 
         
