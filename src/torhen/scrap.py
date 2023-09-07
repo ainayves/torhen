@@ -40,7 +40,8 @@ class Scrapper:
         for link in all_filtered_links:
             for a , b in enumerate(best_torrent):
                 if b in link:
-                    self.result.append(f'{link} | Size : {clean_data[a][2]}')
+
+                    self.result.append(f'{link} | Size : {clean_data[a][2]}'[1:])
 
         for x, y in enumerate(self.result):
             print(f'{x+1}- {y}')
@@ -49,7 +50,7 @@ class Scrapper:
         # self.driver.close()
         while True:
             user_input = input('Choose a torrent number > ')
-            self.driver.get(f"https://www.limetorrents.lol{self.result[int(user_input) - 1]}")
+            self.driver.get(f"https://www.limetorrents.lol/{self.result[int(user_input) - 1].split(' | ')[0]}")
             page_source = self.driver.page_source
             soup = BeautifulSoup(page_source, 'html.parser')
             links = soup.find_all("a")
@@ -58,8 +59,7 @@ class Scrapper:
                     self.magnet_link = link
                     break
             
-            
-            # stream_upload(str(self.magnet_link['href']))
+            print(str(self.magnet_link['href']))
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--search', type=str, required=True)
