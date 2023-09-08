@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from utils import ten_maximum_seeders
 from save_drive import stream_upload
 import argparse
+from torrentp import TorrentDownloader
 
 class Scrapper:
 
@@ -41,7 +42,7 @@ class Scrapper:
             for a , b in enumerate(best_torrent):
                 if b in link:
 
-                    self.result.append(f'{link} | Size : {clean_data[a][2]}'[1:])
+                    self.result.append(f'{link} | Size : {clean_data[a][2]} | Seeders : {clean_data[a][3]}'[1:])
 
         for x, y in enumerate(self.result):
             print(f'{x+1}- {y}')
@@ -59,7 +60,10 @@ class Scrapper:
                     self.magnet_link = link
                     break
             
-            print(str(self.magnet_link['href']))
+            # stream_upload(str(self.magnet_link['href']))
+
+            torrent_file = TorrentDownloader(str(self.magnet_link['href']), '.')
+            torrent_file.start_download()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--search', type=str, required=True)
