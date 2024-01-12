@@ -23,13 +23,13 @@
 
 ## Features
 
-- TODO
+- TODO (ON GOING)
 
 ## Requirements
 
-- TODO
+- TODO (ON GOING)
 
-## Installation
+## Installation (ON GOING)
 
 You can install _Torhen_ via [pip] from [PyPI]:
 
