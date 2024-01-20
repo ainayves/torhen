@@ -4,3 +4,4 @@ setuptools
 wheel
 lbry-libtorrent
 pydrive
+mypy
